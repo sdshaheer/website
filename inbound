@@ -1,0 +1,449 @@
+import React from 'react';
+
+// --- Color Palette (Final Precision) ---
+const COLORS = {
+  pageBg: '#f3f4f6',      // Light grey page background
+  dashBg: '#ffffff',      // Main dashboard card background
+  sectionBg: '#f9fafb',   // Slightly grey area for columns
+  cardBg: '#ffffff',      // Internal white cards
+  primary: '#111827',
+  secondary: '#6b7280',
+  success: '#10b981',
+  warning: '#f59e0b',
+  danger: '#ef4444',
+  border: '#e5e7eb',
+  // Table Backgrounds
+  pendingTop: '#eef2ff',
+  failedTop: '#fee2e2',
+  arrivedTop: '#dcfce7',
+  pendingBottom: '#f5f8ff',
+  failedBottom: '#fff1f1',
+  arrivedBottom: '#f0fdf4',
+  breachRed: '#fef2f2',
+  slaGreen: '#ecfdf5',
+};
+
+// --- Centralized Dashboard Data ---
+// You can easily modify labels, values, and status here
+const DASHBOARD_DATA = {
+  header: {
+    title: "Inbound(2)",
+    subtitle: "The state of requests Production support team is handling. Any help text can be specified here",
+    badges: [
+      { count: "6", type: "danger" },
+      { count: "4", type: "warning" }
+    ]
+  },
+  sections: [
+    {
+      id: "mqs",
+      title: "MQs",
+      infoCards: [
+        {
+          title: "Solace",
+          hasClock: true,
+          alert: "SSL Expiring on..",
+          items: [
+            { label: 'NAM', status: 'check' },
+            { label: 'EMEA', status: 'check' },
+            { label: 'APAC', status: 'check' },
+            { label: 'Japan', status: 'check' }
+          ]
+        },
+        {
+          title: "KaaS",
+          items: [
+            { label: 'Zookeeper', status: 'check' },
+            { label: 'Broker', status: 'check' },
+            { label: 'Schema Registry', status: 'check' }
+          ]
+        },
+        {
+          title: "MQ Source",
+          items: [
+            { label: 'Source', value: '532' },
+            { label: 'Feed', value: '83' },
+            { label: 'MQs', value: '83' }
+          ]
+        }
+      ],
+      inbound: {
+        title: "MQs Inbound",
+        messagesIngested: "12345678",
+        stats: { pending: 5, arrived: 6, potential: 5, sla: 0, failed: 3, slaBreachIn: 1 }
+      }
+    },
+    {
+      id: "files",
+      title: "Files",
+      infoCards: [
+        {
+          title: "Files Source",
+          items: [
+            { label: 'Source', value: '11029' },
+            { label: 'Feed', value: '12102' },
+            { label: 'Files', value: '10029' }
+          ]
+        },
+        {
+          title: "IBM Connect Dir...",
+          items: [
+            { label: 'Status Monitor', status: 'check' },
+            { label: 'Connection Ma...', status: 'check' },
+            { label: 'Process Manager', status: 'check' }
+          ]
+        },
+        {
+          title: "File Watcher",
+          hasClock: false,
+          alert: "One or more file...",
+          items: [
+            { label: 'Service', status: 'check' },
+            { label: 'Scheduler', status: 'warning' },
+            { label: 'NAS Health', status: 'check' },
+            { label: 'NAS Usage', percent: '26.28%' }
+          ]
+        }
+      ],
+      inbound: {
+        title: "Files Inbound",
+        messagesIngested: "12345678",
+        stats: { pending: 5, arrived: 6, potential: 5, sla: 0, failed: 3, slaBreachIn: 1 }
+      }
+    }
+  ]
+};
+
+// --- Reusable UI Components ---
+
+const StatusIcon = ({ type }) => {
+  if (type === 'check') {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={COLORS.success} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    );
+  }
+  if (type === 'clock') {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={COLORS.warning} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+      </svg>
+    );
+  }
+  if (type === 'warning') {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={COLORS.warning} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    );
+  }
+  return null;
+};
+
+const SectionHeader = ({ title, subtitle }) => (
+  <div style={{ marginBottom: '12px' }}>
+    <h1 style={{ fontSize: '18px', fontWeight: '700', color: COLORS.primary, margin: 0 }}>{title}</h1>
+    <p style={{ fontSize: '11px', color: COLORS.secondary, margin: '2px 0' }}>{subtitle}</p>
+  </div>
+);
+
+const Badge = ({ count, type }) => (
+  <div style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    backgroundColor: type === 'danger' ? '#fee2e2' : '#fef3c7',
+    padding: '3px 8px',
+    borderRadius: '6px',
+    border: `1px solid ${type === 'danger' ? '#fecaca' : '#fde68a'}`,
+  }}>
+    <span style={{ color: type === 'danger' ? COLORS.danger : COLORS.warning, fontWeight: 'bold', fontSize: '12px' }}>
+      {type === 'danger' ? '!' : '▲'}
+    </span>
+    <span style={{ fontSize: '12px', fontWeight: '600', color: COLORS.primary }}>{count}</span>
+  </div>
+);
+
+const InfoCard = ({ title, items, alert, hasClock }) => (
+  <div style={{
+    backgroundColor: COLORS.cardBg,
+    borderRadius: '12px',
+    padding: '12px',
+    border: `1px solid ${COLORS.border}`,
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    minWidth: '130px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.03)'
+  }}>
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: COLORS.primary }}>{title}</h3>
+        {hasClock && <StatusIcon type="clock" />}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+        {items.map((item, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '10px', color: COLORS.secondary, fontWeight: '500' }}>{item.label}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {item.value && <span style={{ fontSize: '10px', fontWeight: '600' }}>{item.value}</span>}
+              {item.status && <StatusIcon type={item.status} />}
+              {item.percent && <span style={{ fontSize: '10px', fontWeight: '700', color: COLORS.success }}>{item.percent}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    {alert && (
+      <div style={{
+        marginTop: '10px',
+        backgroundColor: COLORS.warning,
+        padding: '4px 8px',
+        borderRadius: '6px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        color: 'white',
+        fontSize: '9px',
+        fontWeight: '600'
+      }}>
+        <StatusIcon type="warning" />
+        <span style={{ color: 'white' }}>{alert}</span>
+      </div>
+    )}
+  </div>
+);
+
+const StatTableCard = ({ title, messagesIngested, stats }) => (
+  <div style={{
+    backgroundColor: COLORS.cardBg,
+    borderRadius: '16px',
+    padding: '16px',
+    border: `1px solid ${COLORS.border}`,
+    marginTop: '12px',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+  }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', alignItems: 'flex-end' }}>
+      <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '600' }}>{title}</h4>
+      <span style={{ fontSize: '11px', color: COLORS.secondary }}><b>{messagesIngested}</b> :Messages Ingested</span>
+    </div>
+
+    {/* Flexbox Layout with Fixed Percentages for Perfectly Straight Vertical Borders */}
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: '8px',
+      overflow: 'hidden',
+      boxSizing: 'border-box'
+    }}>
+      {/* Header Row */}
+      <div style={{ display: 'flex', textAlign: 'center', boxSizing: 'border-box' }}>
+        <div style={{
+          flex: '0 0 35.294%',
+          padding: '6px 10px',
+          backgroundColor: COLORS.pendingTop,
+          borderBottom: `1px solid ${COLORS.border}`,
+          fontSize: '11px',
+          fontWeight: '500',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderRight: `1px solid ${COLORS.border}`,
+          boxSizing: 'border-box'
+        }}>
+          <span>Pending</span>
+          <span style={{ textDecoration: 'underline', fontSize: '14px', fontWeight: '700' }}>{stats.pending}</span>
+        </div>
+        <div style={{
+          flex: '0 0 29.412%',
+          padding: '6px',
+          backgroundColor: COLORS.failedTop,
+          borderBottom: `1px solid ${COLORS.border}`,
+          fontSize: '11px',
+          fontWeight: '500',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRight: `1px solid ${COLORS.border}`,
+          boxSizing: 'border-box'
+        }}>
+          Failed
+        </div>
+        <div style={{
+          flex: '0 0 35.294%',
+          padding: '6px 10px',
+          backgroundColor: COLORS.arrivedTop,
+          borderBottom: `1px solid ${COLORS.border}`,
+          fontSize: '11px',
+          fontWeight: '500',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxSizing: 'border-box'
+        }}>
+          <span>Arrived</span>
+          <span style={{ textDecoration: 'underline', fontSize: '14px', fontWeight: '700' }}>{stats.arrived}</span>
+        </div>
+      </div>
+
+      {/* Content Row 1 (Breach Labels) */}
+      <div style={{ display: 'flex', textAlign: 'center', boxSizing: 'border-box' }}>
+        <div style={{
+          flex: '0 0 35.294%',
+          display: 'flex',
+          backgroundColor: COLORS.pendingBottom,
+          borderRight: `1px solid ${COLORS.border}`,
+          boxSizing: 'border-box'
+        }}>
+          <div style={{ flex: 1, padding: '4px', fontSize: '9px', color: COLORS.secondary, textAlign: 'left', paddingLeft: '8px' }}>Potential Breach</div>
+          <div style={{ flex: 1, padding: '4px', fontSize: '9px', color: COLORS.secondary, textAlign: 'left', paddingLeft: '8px' }}>SLA Breach</div>
+        </div>
+        <div style={{
+          flex: '0 0 29.412%',
+          backgroundColor: COLORS.failedBottom,
+          borderRight: `1px solid ${COLORS.border}`,
+          boxSizing: 'border-box'
+        }}></div>
+        <div style={{
+          flex: '0 0 35.294%',
+          padding: '4px',
+          backgroundColor: COLORS.arrivedBottom,
+          fontSize: '9px',
+          color: COLORS.secondary,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxSizing: 'border-box'
+        }}>
+          SLA Breach
+        </div>
+      </div>
+
+      {/* Content Row 2 (Breach Values) */}
+      <div style={{ display: 'flex', textAlign: 'center', boxSizing: 'border-box' }}>
+        <div style={{
+          flex: '0 0 35.294%',
+          display: 'flex',
+          backgroundColor: COLORS.pendingBottom,
+          borderRight: `1px solid ${COLORS.border}`,
+          boxSizing: 'border-box'
+        }}>
+          <div style={{ flex: 1, padding: '8px', fontSize: '14px', fontWeight: '700', textAlign: 'left', paddingLeft: '12px' }}>
+            <span style={{ textDecoration: 'underline' }}>{stats.potential}</span>
+          </div>
+          <div style={{ flex: 1, padding: '8px', fontSize: '14px', fontWeight: '700', textAlign: 'left', paddingLeft: '12px' }}>{stats.sla}</div>
+        </div>
+        <div style={{
+          flex: '0 0 29.412%',
+          padding: '8px',
+          backgroundColor: COLORS.breachRed,
+          fontSize: '14px',
+          color: COLORS.danger,
+          fontWeight: '700',
+          borderRight: `1px solid ${COLORS.border}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxSizing: 'border-box'
+        }}>
+          <span style={{ textDecoration: 'underline' }}>{stats.failed}</span>
+        </div>
+        <div style={{
+          flex: '0 0 35.294%',
+          padding: '8px',
+          backgroundColor: COLORS.slaGreen,
+          fontSize: '14px',
+          color: '#854d0e',
+          fontWeight: '700',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxSizing: 'border-box'
+        }}>
+          <span style={{ textDecoration: 'underline' }}>{stats.slaBreachIn}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// --- Main Application ---
+
+const App = () => {
+  const { header, sections } = DASHBOARD_DATA;
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: COLORS.pageBg,
+      padding: '20px 24px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif',
+      color: COLORS.primary
+    }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+
+        {/* Page Top Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <SectionHeader
+            title={header.title}
+            subtitle={header.subtitle}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {header.badges.map((badge, idx) => (
+              <Badge key={idx} count={badge.count} type={badge.type} />
+            ))}
+            <button style={{ border: 'none', background: 'none', fontSize: '18px', cursor: 'pointer', color: COLORS.secondary }}>—</button>
+          </div>
+        </div>
+
+        {/* --- MAIN DASHBOARD CARD --- */}
+        <div style={{
+          backgroundColor: COLORS.pageBg,
+          borderRadius: '24px',
+          border: `1px solid ${COLORS.border}`,
+          padding: '24px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)'
+        }}>
+
+          {/* Flexbox Layout */}
+          <div style={{ display: 'flex', gap: '24px' }}>
+            {sections.map((section) => (
+              <div key={section.id} style={{ flex: 1 }}>
+                <h2 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '600' }}>{section.title}</h2>
+                <div style={{
+                  backgroundColor: COLORS.sectionBg,
+                  borderRadius: '16px',
+                  padding: '12px',
+                  display: 'flex',
+                  gap: '12px',
+                  marginBottom: '12px'
+                }}>
+                  {section.infoCards.map((card, idx) => (
+                    <InfoCard
+                      key={idx}
+                      title={card.title}
+                      items={card.items}
+                      alert={card.alert}
+                      hasClock={card.hasClock}
+                    />
+                  ))}
+                </div>
+                <StatTableCard
+                  title={section.inbound.title}
+                  messagesIngested={section.inbound.messagesIngested}
+                  stats={section.inbound.stats}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
