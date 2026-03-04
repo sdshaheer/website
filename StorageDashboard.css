@@ -1,0 +1,193 @@
+.storage-dashboard {
+    padding: 24px;
+    background-color: #f3f4f6;
+    border-radius: 16px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #374151;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.header-dash {
+    font-size: 24px;
+    color: #9ca3af;
+    font-weight: 300;
+}
+
+.clusters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.cluster-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 1px solid #d1d5db;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: transparent;
+}
+
+.cluster-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.tech-cards-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+/* Specific layouts for Hadoop which spans */
+.cluster-nj .tech-cards-container :first-child {
+    grid-column: span 2;
+}
+
+.cluster-ny .tech-cards-container :first-child {
+    grid-row: span 2;
+}
+
+.tech-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f3f4f6;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Standardize height for secondary cards across all clusters */
+.tech-cards-container .tech-card:not(:first-child) {
+    min-height: 140px;
+    justify-content: flex-start;
+}
+
+/* Specific compact padding for NY if needed, but keeping height matched */
+.cluster-ny .tech-cards-container .tech-card {
+    padding: 16px;
+}
+
+/* NY Hadoop still needs some height since it spans 2 rows */
+.cluster-ny .tech-cards-container .tech-card:first-child {
+    min-height: 300px;
+    /* Increased to match combined height of 2 cards + gap */
+}
+
+.tech-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: #111827;
+}
+
+.tech-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tech-items-flex-container {
+    display: flex;
+    gap: 32px;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.tech-list-left,
+.tech-list-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.tech-items-flex-container::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 12px;
+    width: 1px;
+    background-color: #e2e8f0;
+    transform: translateX(-50%);
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.status-label {
+    color: #4b5563;
+}
+
+.status-value-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-value {
+    font-weight: 500;
+}
+
+.alert-banner {
+    background-color: #fab005;
+    color: #111827;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: auto;
+}
+
+.alert-banner.mini {
+    padding: 10px 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.alert-banner svg {
+    flex-shrink: 0;
+}
+
+.status-icon-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 1024px) {
+    .clusters-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .clusters-grid::after {
+        display: none;
+    }
+}
