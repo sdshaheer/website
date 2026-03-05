@@ -1,0 +1,115 @@
+.query-engine-container {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #374151;
+}
+
+.query-engine-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.query-engine-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.minimize-icon {
+    font-size: 20px;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+.query-engine-clusters {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.cluster-section {
+    flex: 1;
+}
+
+.cluster-label {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+    margin: 0 0 16px 0;
+}
+
+.cluster-cards {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    /* Allow cards to wrap if they don't fit */
+}
+
+/* Force 3 cards in a row on larger screens */
+@media (min-width: 1024px) {
+    .cluster-cards {
+        flex-wrap: nowrap;
+    }
+}
+
+.query-sub-card {
+    background: #ffffff;
+    border: 1px solid #f3f4f6;
+    border-radius: 16px;
+    padding: 16px;
+    flex: 1 1 180px;
+    /* Take equal space, but wrap if less than 180px */
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.query-sub-card.center-content {
+    justify-content: center;
+    align-items: center;
+}
+
+.sub-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+    margin: 0 0 16px 0;
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.status-label {
+    color: #4b5563;
+    font-weight: 400;
+}
+
+.status-value {
+    color: #10b981;
+    /* Green */
+    font-weight: 600;
+}
+
+.status-value.failed {
+    color: #ef4444;
+    /* Red */
+}
+
+.latency-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ef4444;
+    /* Red latency shown in image */
+}
